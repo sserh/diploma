@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: netology-diploma
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=public
+    username: postgres
+    password: mysecretpassword
+  jpa:
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      continue-on-error: false
+      mode: never

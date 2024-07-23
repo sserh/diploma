@@ -1,0 +1,28 @@
+package ru.raccoon.netologydiploma.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Entity(name = "authorities")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Authority {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @NotNull
+    private String username;
+    @NotNull
+    private String authority;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_fk")
+    private User appUser;
+}
