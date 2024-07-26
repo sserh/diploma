@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: netology-diploma
@@ -13,7 +14,11 @@ spring:
     show-sql: 'true'
     hibernate:
       ddl-auto: update
-  sql:
-    init:
-      continue-on-error: false
-      mode: never
+
+server:
+  port: 8090
+
+token:
+  secret: chIkRP2sVNyDbdFcL1VLxdnjjxPV4lYt52peqzzJ0N5xvS1OZ7sfiI0NOMpL0OTYdkwjIJBZlmjElUrlmrX8pwdL2YLgSydIxWZk
+  expirationMs: 60000
+
