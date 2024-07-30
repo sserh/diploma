@@ -10,9 +10,8 @@ public class TokenRepository {
 
     static Map<String, Boolean> tokens = new HashMap<>();
 
-    public static String addNewToken(String token) {
+    public static void addNewToken(String token) {
         tokens.put(token, true);
-        return tokens.get(token) ? token : "Токен не найден";
     }
 
     public static void disabledToken(String token) {
