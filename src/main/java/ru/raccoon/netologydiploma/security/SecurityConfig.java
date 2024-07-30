@@ -59,14 +59,12 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
-                .logout(lOut -> {
-                    lOut
-                            .invalidateHttpSession(true)
-                            .clearAuthentication(true)
-                            .logoutUrl("/logout")
-                            .addLogoutHandler(customLogoutHandler)
-                            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
-                 });
+                .logout(lOut -> lOut
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .logoutUrl("/logout")
+                        .addLogoutHandler(customLogoutHandler)
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
         return http.build();
     }
 
