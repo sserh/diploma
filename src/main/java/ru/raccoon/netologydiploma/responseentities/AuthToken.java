@@ -1,4 +1,4 @@
-package ru.raccoon.netologydiploma.component;
+package ru.raccoon.netologydiploma.responseentities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

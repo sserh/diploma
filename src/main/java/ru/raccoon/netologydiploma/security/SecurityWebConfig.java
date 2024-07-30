@@ -10,11 +10,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 class SecurityWebConfig implements WebMvcConfigurer {
 
     //разрешим доступ к методам фронту, который работает локально на порту 8080
-    @Override
+/*    @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowCredentials(true)
                 .allowedOrigins("http://localhost:8080")
                 .allowedMethods("*");
-    }
+    }*/
 }

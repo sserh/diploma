@@ -20,5 +20,5 @@ server:
 
 token:
   secret: chIkRP2sVNyDbdFcL1VLxdnjjxPV4lYt52peqzzJ0N5xvS1OZ7sfiI0NOMpL0OTYdkwjIJBZlmjElUrlmrX8pwdL2YLgSydIxWZk
-  expirationMs: 60000
+  expirationMs: 600000
 

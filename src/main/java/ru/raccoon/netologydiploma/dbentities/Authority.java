@@ -1,4 +1,4 @@
-package ru.raccoon.netologydiploma.entity;
+package ru.raccoon.netologydiploma.dbentities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
