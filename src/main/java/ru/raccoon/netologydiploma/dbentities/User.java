@@ -10,6 +10,9 @@ import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.Set;
 
+/**
+ * Класс, соотносящийся с таблицей, требующейся для реализации аутентификации по-умолчанию
+ */
 @Data
 @Entity(name = "users")
 @Builder

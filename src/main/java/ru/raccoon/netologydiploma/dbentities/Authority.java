@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Класс, соотносящийся с таблицей, требующейся для реализации аутентификации по-умолчанию
+ */
 @Data
 @Entity(name = "authorities")
 @Builder

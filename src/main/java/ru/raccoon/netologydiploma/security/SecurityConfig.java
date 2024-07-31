@@ -46,11 +46,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth -> auth
+                //на endpoint логина можно заходить всем, все остальные endpoint's требуют аутентификации
                         .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated())
+                //режим работы сессий отключаем
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                //добавляем фильтрацию по токену
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                //отключаем защиту csrf
                 .csrf(AbstractHttpConfigurer::disable)
+                //настраиваем cors
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOriginPatterns(List.of("*"));
@@ -59,15 +64,20 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
+                //реализуем logout
                 .logout(lOut -> lOut
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
+                        //назначаем endpoint для logout
                         .logoutUrl("/logout")
+                        //добавляем обработчик на событие вызова logout
                         .addLogoutHandler(customLogoutHandler)
+                        //при успешно logout отправляем клиенту статус 200
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
         return http.build();
     }
 
+    //менеджер аутентификации, используемый для осуществления входа пользователя
     @Bean
     public AuthenticationManager authenticationManager(JdbcDaoImpl userDetailsService, PasswordEncoder encoder){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();

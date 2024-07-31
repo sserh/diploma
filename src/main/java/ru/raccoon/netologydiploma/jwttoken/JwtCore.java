@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/**
+ * Класс, предоставляющий метод генерации токена аутентификации для пользователя
+ */
 @Component
 @Data
 public class JwtCore {
@@ -19,12 +22,21 @@ public class JwtCore {
     @Value("${token.expirationMs}")
     private int lifetime;
 
-    public String generateToken(String username) {
+    /** Метод, генерирующий токен на основе логина пользователя
+     * @param login Логин пользователя
+     * @return Возвращает сгенерированный токен
+     */
+    public String generateToken(String login) {
         return Jwts.builder()
-                .subject(username)
+                //записываем в токен логин
+                .subject(login)
+                //время начала действия токена
                 .issuedAt(new Date(System.currentTimeMillis()))
+                //время истечения действия токена
                 .expiration(new Date(System.currentTimeMillis() + lifetime))
+                //шифруем это всё с включением секрета
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), Jwts.SIG.HS512)
+                //и выражаем в виде строки
                 .compact();
     }
 }
