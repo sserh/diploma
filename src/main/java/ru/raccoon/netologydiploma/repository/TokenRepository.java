@@ -2,8 +2,8 @@ package ru.raccoon.netologydiploma.repository;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Класс, осуществляющий работу с выданными пользователям токенами
@@ -12,7 +12,7 @@ import java.util.Map;
 public class TokenRepository {
 
     //мапа для хранения информации о токенах
-    static final Map<String, Boolean> tokens = new HashMap<>();
+    static final Map<String, Boolean> tokens = new ConcurrentHashMap<>();
 
     /**
      * Метод, добавляющий в мапу новый выданный пользователю токен
