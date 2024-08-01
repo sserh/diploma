@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Класс, соотносящийся с таблицей в БД, требующейся для хранения информации о файлах
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

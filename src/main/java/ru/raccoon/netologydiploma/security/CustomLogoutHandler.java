@@ -34,7 +34,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         } else {
             try {
                 //иначе отправляем ошибку
-                response.sendError(HttpStatus.FORBIDDEN.value(), "Пользователь не существует или выход уже был осуществлён");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Пользователь не существует или выход уже был осуществлён");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

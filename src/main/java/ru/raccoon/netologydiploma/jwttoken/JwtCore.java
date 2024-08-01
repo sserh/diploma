@@ -16,9 +16,15 @@ import java.util.Date;
 @Data
 public class JwtCore {
 
+    /**
+     * Секретная строка для шифрования
+     */
     @Value("${token.secret}")
     private String secret;
 
+    /**
+     * Время жизни токена
+     */
     @Value("${token.expirationMs}")
     private int lifetime;
 

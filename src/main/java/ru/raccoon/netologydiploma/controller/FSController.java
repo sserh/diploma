@@ -12,6 +12,9 @@ import ru.raccoon.netologydiploma.service.FSService;
 
 import java.util.List;
 
+/**
+ * Класс-контроллер для принятия от пользователей запросов, связанных с файловым сервисом
+ */
 @RestController
 @RequestMapping("/cloud/")
 public class FSController {
@@ -23,6 +26,10 @@ public class FSController {
         this.fsService = fsService;
     }
 
+    /** Метод, принимающий и перенаправляющий в нужный сервис запрос на получение списка файлов
+     * @param limit Ограничение по количеству файлов в списке файлов
+     * @return Возвращает список с названиями и размерами файлов
+     */
     @GetMapping("list")
     public ResponseEntity<List<FileInfo>> getListWithLimit(@RequestParam int limit) {
         if (limit < 0) {
@@ -31,21 +38,38 @@ public class FSController {
         return fsService.getListWithLimit(limit);
     }
 
+    /** Метод, принимающий и перенаправляющий в нужный сервис запрос на загрузку нового файла на файловый сервис
+     * @param file Загружаемый файл
+     * @return Возвращает от сервиса результат загрузки файла
+     */
     @PostMapping("file")
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
         return fsService.uploadFile(file);
     }
 
+    /** Метод, принимающий и перенаправляющий в нужный сервис запрос на удаление файла с файлового сервиса
+     * @param filename Название удаляемого файла
+     * @return Возвращает от сервиса результат удаления файла
+     */
     @DeleteMapping("file")
     public ResponseEntity<String> deleteFile(@RequestParam String filename) {
         return fsService.deleteFile(filename);
     }
 
+    /** Метод, принимающий и перенаправляющий в нужный сервис запрос на скачивание файла с файлового сервиса
+     * @param filename Название скачиваемого файла
+     * @return Возвращает от сервиса результат скачивания файла
+     */
     @GetMapping("file")
     public ResponseEntity<Resource> downloadFile(@RequestParam String filename) {
         return fsService.downloadFile(filename);
     }
 
+    /** Метод, принимающий и перенаправляющий в нужный сервис запрос на переименование файла на файловом сервисе
+     * @param filename Текущее название файла
+     * @param fileNameEntity Новое название файла
+     * @return Возвращает от сервиса результат переименования файла
+     */
     @PutMapping("file")
     public ResponseEntity<String> renameFile(@RequestParam String filename, @RequestBody FileNameEntity fileNameEntity) {
         return fsService.renameFile(filename, fileNameEntity.getFilename());

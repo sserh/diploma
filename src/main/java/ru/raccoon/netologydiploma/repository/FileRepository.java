@@ -16,17 +16,29 @@ public class FileRepository {
         this.entityManager = entityManager;
     }
 
+    /** Метод для добавления в БД новой информации о файле
+     * @param fileInfo Информация о файле
+     */
     @Transactional
     public void insertWithEntityManager(FileInfo fileInfo) {
         this.entityManager.persist(fileInfo);
-        entityManager.flush();
-        entityManager.clear();
+        flushAndClearEntity();
     }
 
+    /** Метод для удаления из БД информации о файле
+     * @param fileInfo Информация о файле
+     */
     @Transactional
     public void deleteWithEntityManager(FileInfo fileInfo) {
         FileInfo fileInfo1 = entityManager.find(FileInfo.class, fileInfo.getFilename());
         entityManager.remove(fileInfo1);
+        flushAndClearEntity();
+    }
+
+    /**
+     * Метод для очистки менеджера данных
+     */
+    private void flushAndClearEntity() {
         entityManager.flush();
         entityManager.clear();
     }

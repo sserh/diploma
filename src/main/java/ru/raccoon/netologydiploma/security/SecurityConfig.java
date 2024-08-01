@@ -26,6 +26,9 @@ import ru.raccoon.netologydiploma.jwttoken.JwtRequestFilter;
 import javax.sql.DataSource;
 import java.util.List;
 
+/**
+ * Класс с настройками работы всех сущностей, связанных с авторизацией и аутентификацией пользователя
+ */
 @Component
 @EnableWebSecurity
 @Configuration
@@ -72,8 +75,9 @@ public class SecurityConfig {
                         .logoutUrl("/cloud/logout")
                         //добавляем обработчик на событие вызова logout
                         .addLogoutHandler(customLogoutHandler)
-                        //при успешно logout отправляем клиенту статус 200
+                        //при успешном logout отправляем клиенту статус 200
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
+
         return http.build();
     }
 

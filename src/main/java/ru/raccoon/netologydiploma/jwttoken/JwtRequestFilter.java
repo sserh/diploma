@@ -2,11 +2,11 @@ package ru.raccoon.netologydiploma.jwttoken;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,8 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 import ru.raccoon.netologydiploma.repository.TokenRepository;
+import ru.raccoon.netologydiploma.utils.UtilClass;
 
 import java.io.IOException;
 import java.util.Date;
@@ -29,12 +29,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
     private final String secret;
-    private final HandlerExceptionResolver resolver;
 
-    public JwtRequestFilter(UserDetailsService userDetailsService, @Value("${token.secret}") String secret, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public JwtRequestFilter(UserDetailsService userDetailsService, @Value("${token.secret}") String secret) {
         this.userDetailsService = userDetailsService;
         this.secret = secret;
-        this.resolver = resolver;
     }
 
     /**
@@ -57,7 +55,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         //проверяем, что это действительно токен
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            username = extractUsername(jwt);
+            try {
+                username = extractUsername(jwt);
+            } catch (SignatureException e) {
+                //если извлечь пользователя из токена не удалось, сообщаем об этом
+                UtilClass.sendTokenError(response, "Структура токена нарушена", 10050);
+                //и прекращаем выполнение фильтрации
+                return;
+            }
         }
 
         //если токен действителен, то сверяем, что пользователь из токена совпадает с пользователем, уже осуществившим вход
@@ -70,6 +75,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 //подтверждаем аутентификацию
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            } else {
+                //если валидность токена не подтверждена, то сообщаем об этом
+                UtilClass.sendTokenError(response, "Токен недействителен", 10060);
+                //и прекращаем выполнение фильтрации
+                return;
             }
         }
         //передаём управление следующем фильтру
@@ -109,6 +119,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).build().parseClaimsJws(token).getBody();
         return claims.getExpiration().before(new Date());
     }
-
-
 }
