@@ -12,23 +12,29 @@ import java.util.Map;
 public class TokenRepository {
 
     //мапа для хранения информации о токенах
-    static Map<String, Boolean> tokens = new HashMap<>();
+    static final Map<String, Boolean> tokens = new HashMap<>();
 
-    /** Метод, добавляющий в мапу новый выданный пользователю токен
+    /**
+     * Метод, добавляющий в мапу новый выданный пользователю токен
+     *
      * @param token Токен
      */
     public static void addNewToken(String token) {
         tokens.put(token, true);
     }
 
-    /** Метод, помечающий токен недействительным
+    /**
+     * Метод, помечающий токен недействительным
+     *
      * @param token Токен
      */
     public static void disabledToken(String token) {
         tokens.put(token, false);
     }
 
-    /** Метод, проверяющий действительность токена
+    /**
+     * Метод, проверяющий действительность токена
+     *
      * @param token Токен
      * @return Возвращает признак действительности
      */

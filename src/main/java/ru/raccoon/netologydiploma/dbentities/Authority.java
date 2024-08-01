@@ -17,7 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Authority {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @NotNull

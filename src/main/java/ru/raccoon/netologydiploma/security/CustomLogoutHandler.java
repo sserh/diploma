@@ -2,6 +2,7 @@ package ru.raccoon.netologydiploma.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,11 @@ import java.io.IOException;
 @Service
 public class CustomLogoutHandler implements LogoutHandler {
 
-    /** Переопределённый метод выхода пользователя
-     * @param request Запрос на выход от пользователя
-     * @param response Ответ на запрос пользователя
+    /**
+     * Переопределённый метод выхода пользователя
+     *
+     * @param request        Запрос на выход от пользователя
+     * @param response       Ответ на запрос пользователя
      * @param authentication Данные по текущей аутентификации
      */
     @Override
@@ -31,7 +34,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         } else {
             try {
                 //иначе отправляем ошибку
-                response.sendError(1002, "Пользователь не существует или выход уже был осуществлён");
+                response.sendError(HttpStatus.FORBIDDEN.value(), "Пользователь не существует или выход уже был осуществлён");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

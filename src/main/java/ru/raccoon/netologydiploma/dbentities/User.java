@@ -20,10 +20,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotNull @UniqueElements
+    @NotNull
+    @UniqueElements
     private String username;
     @NotNull
     private String password;

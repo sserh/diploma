@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import ru.raccoon.netologydiploma.repository.TokenRepository;
 
 import java.io.IOException;
@@ -27,23 +29,26 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
     private final String secret;
+    private final HandlerExceptionResolver resolver;
 
-    public JwtRequestFilter(UserDetailsService userDetailsService, @Value("${token.secret}") String secret) {
+    public JwtRequestFilter(UserDetailsService userDetailsService, @Value("${token.secret}") String secret, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.userDetailsService = userDetailsService;
         this.secret = secret;
+        this.resolver = resolver;
     }
 
-    /** Метод реализующий фильтр по токену. Метод нужен для включения в цепочку фильтров web-безопасности
-     * @param request Запрос от пользователя
+    /**
+     * Метод реализующий фильтр по токену. Метод нужен для включения в цепочку фильтров web-безопасности
+     *
+     * @param request  Запрос от пользователя
      * @param response Ответ на запрос
-     * @param chain Параметр передачи управления
+     * @param chain    Параметр передачи управления
      * @throws ServletException Обработка исключений сервлета
-     * @throws IOException Обработка общих исключений при работе с потоками ввода/вывода
+     * @throws IOException      Обработка общих исключений при работе с потоками ввода/вывода
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
-        //получаем heаder с предполагаемым токеном из запроса
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        //получаем header с предполагаемым токеном из запроса
         final String authorizationHeader = request.getHeader("Auth-Token");
 
         String username = null;
@@ -71,31 +76,39 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    /** Метод, извлекающий имя пользователя из токена
+    /**
+     * Метод, извлекающий имя пользователя из токена
+     *
      * @param token Токен
      * @return Возвращает имя пользователя, извлечённое из токена
      */
-    private String extractUsername(String token) {
+    public String extractUsername(String token) {
         return Jwts.parser().setSigningKey(secret.getBytes()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
-    /** Метод, возвращающий признак действительности токена - имя пользователя в токене совпадает с авторизованным пользователем, время действия токена не истекло
+    /**
+     * Метод, возвращающий признак действительности токена - имя пользователя в токене совпадает с авторизованным пользователем, время действия токена не истекло
      * и держатель этого токена не осуществлял выход
-     * @param token Токен
+     *
+     * @param token       Токен
      * @param userDetails Параметры авторизованного пользователя
      * @return Возвращает true, если токен действительный и false, если токен недействительный
      */
-    private boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) && TokenRepository.isTokenEnabled(token));
     }
 
-    /** Метод, возвращающий признак того, что срок действия токена ещё не истёк
+    /**
+     * Метод, возвращающий признак того, что срок действия токена ещё не истёк
+     *
      * @param token Токен
      * @return Возвращает true, если срок действия пользователя не истёк и false, если срок действия токена истёк
      */
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         final Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).build().parseClaimsJws(token).getBody();
         return claims.getExpiration().before(new Date());
     }
+
+
 }

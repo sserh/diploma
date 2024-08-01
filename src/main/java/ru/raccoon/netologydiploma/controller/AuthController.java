@@ -11,7 +11,7 @@ import ru.raccoon.netologydiploma.responseentities.AuthToken;
 import ru.raccoon.netologydiploma.service.AuthService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/cloud/")
 public class AuthController {
 
     private final AuthService authService;
@@ -21,18 +21,14 @@ public class AuthController {
         this.authService = authService;
     }
 
-    /** Метод, отправляющий пользователю информацию о результатах его запроса на осуществление входа
+    /**
+     * Метод, отправляющий пользователю информацию о результатах его запроса на осуществление входа
+     *
      * @param authRequest Запрос пользователя
      * @return Возвращает результат обработки запроса сервисом авторизации
      */
     @PostMapping("login")
     public ResponseEntity<AuthToken> login(@RequestBody AuthRequest authRequest) {
         return authService.login(authRequest.getLogin(), authRequest.getPassword());
-    }
-
-    //тестовое маппирование
-    @PostMapping("enot")
-    public String enot() {
-        return "You are enot";
     }
 }

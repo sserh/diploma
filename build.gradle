@@ -41,9 +41,6 @@ dependencies {
     compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.1.0'
 // https://mvnrepository.com/artifact/javax.servlet/servlet-api
     compileOnly group: 'javax.servlet', name: 'servlet-api', version: '2.5'
-
-
-
 }
 
 tasks.named('test') {

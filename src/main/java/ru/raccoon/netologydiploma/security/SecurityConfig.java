@@ -44,10 +44,10 @@ public class SecurityConfig {
 
     //проверка токена и фильтрация http-запросов по endpoints
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                //на endpoint логина можно заходить всем, все остальные endpoint's требуют аутентификации
-                        .requestMatchers("/login").permitAll()
+                        //на endpoint логина можно заходить всем, все остальные endpoints требуют аутентификации
+                        .requestMatchers("/cloud/login").permitAll()
                         .anyRequest().authenticated())
                 //режим работы сессий отключаем
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         //назначаем endpoint для logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/cloud/logout")
                         //добавляем обработчик на событие вызова logout
                         .addLogoutHandler(customLogoutHandler)
                         //при успешно logout отправляем клиенту статус 200
@@ -79,7 +79,7 @@ public class SecurityConfig {
 
     //менеджер аутентификации, используемый для осуществления входа пользователя
     @Bean
-    public AuthenticationManager authenticationManager(JdbcDaoImpl userDetailsService, PasswordEncoder encoder){
+    public AuthenticationManager authenticationManager(JdbcDaoImpl userDetailsService, PasswordEncoder encoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(encoder);
@@ -103,7 +103,6 @@ public class SecurityConfig {
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 
 }
