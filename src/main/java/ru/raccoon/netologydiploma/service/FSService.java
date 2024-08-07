@@ -5,6 +5,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Limit;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -41,14 +42,16 @@ public class FSService {
      */
     public List<FileInfo> getListWithLimit(int limit) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
         //если пользователь имеет роль админа, то запрашиваем информацию по файлам не смотря на значение owner
-        for (GrantedAuthority authority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+        for (GrantedAuthority authority: auth.getAuthorities()) {
             if (authority.getAuthority().equals("ROLE_ADMIN")) {
                 return fileJpaRepository.findByOrderByFilenameAsc(Limit.of(limit));
             }
         }
         //если пользователь не имеет роли админа, то запросим информацию только по тем файлам, по которым этот пользователь является owner
-        return fileJpaRepository.findByOwnerOrderByFilenameAsc(SecurityContextHolder.getContext().getAuthentication().getName(), Limit.of(limit));
+        return fileJpaRepository.findByOwnerOrderByFilenameAsc(auth.getName(), Limit.of(limit));
     }
 
     /** Метод перенаправляет запрос в репозиторий для получения информации о файле
