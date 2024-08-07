@@ -6,11 +6,13 @@ import org.springframework.data.domain.Limit;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import ru.raccoon.netologydiploma.dbentities.Authority;
 import ru.raccoon.netologydiploma.dbentities.FileInfo;
 import ru.raccoon.netologydiploma.exception.BadRequestException;
 import ru.raccoon.netologydiploma.exception.ISEException;
@@ -39,8 +41,16 @@ public class FSService {
      * @param limit Ограничение на количество записей в списке
      * @return Возвращает список записей с информацией о файле
      */
-    public ResponseEntity<List<FileInfo>> getListWithLimit(int limit) {
-        return new ResponseEntity<>(fileJpaRepository.findByOrderByFilenameAsc(Limit.of(limit)), HttpStatus.OK);
+    public List<FileInfo> getListWithLimit(int limit) {
+
+        //если пользователь имеет роль админа, то запрашиваем информацию по файлам не смотря на значение owner
+        for (GrantedAuthority authority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+            if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                return fileJpaRepository.findByOrderByFilenameAsc(Limit.of(limit));
+            }
+        }
+        //если пользователь не имеет роли админа, то запросим информацию только по тем файлам, по которым этот пользователь является owner
+        return fileJpaRepository.findByOwnerOrderByFilenameAsc(SecurityContextHolder.getContext().getAuthentication().getName(), Limit.of(limit));
     }
 
     /** Метод перенаправляет запрос в репозиторий для получения информации о файле

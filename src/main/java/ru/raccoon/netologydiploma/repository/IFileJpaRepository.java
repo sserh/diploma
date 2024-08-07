@@ -3,6 +3,7 @@ package ru.raccoon.netologydiploma.repository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.raccoon.netologydiploma.dbentities.FileInfo;
 
@@ -19,6 +20,13 @@ public interface IFileJpaRepository extends JpaRepository<FileInfo, Long> {
      * @return Возвращает список записей о файлах
      */
     List<FileInfo> findByOrderByFilenameAsc(Limit limit);
+
+    /** Метод получения списка записей с информацией о файлах с фильтрацией по владельцу
+     * @param user Владелец, для которого производится выборка
+     * @param limit Ограничение, устанавливаемое для возвращаемого списка
+     * @return Возвращает список записей о файлах
+     */
+    List<FileInfo> findByOwnerOrderByFilenameAsc(@Param("owner") String user, Limit limit);
 
     /** Метод получения записи с информацией о файле по названию файла в информации о файле
      * @param filename Информация о файле

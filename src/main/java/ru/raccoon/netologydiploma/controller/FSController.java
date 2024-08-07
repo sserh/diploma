@@ -1,7 +1,9 @@
 package ru.raccoon.netologydiploma.controller;
 
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.raccoon.netologydiploma.dbentities.FileInfo;
@@ -34,7 +36,7 @@ public class FSController {
         if (limit < 0) {
             throw new BadRequestException(new Error("Получено неверное ограничение количества отображаемых файлов", 1003));
         }
-        return fsService.getListWithLimit(limit);
+        return new ResponseEntity<>(fsService.getListWithLimit(limit), HttpStatus.OK);
     }
 
     /** Метод, принимающий и перенаправляющий в нужный сервис запрос на загрузку нового файла на файловый сервис
