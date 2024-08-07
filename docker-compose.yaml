@@ -1,0 +1,8 @@
+version: '1'
+services:
+  app1:
+    image: 'diploma:1.5'
+    build:
+      ./
+    ports:
+      - '8090:8090'
