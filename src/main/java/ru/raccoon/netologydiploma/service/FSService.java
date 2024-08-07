@@ -1,13 +1,11 @@
 package ru.raccoon.netologydiploma.service;
 
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Limit;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,12 +18,7 @@ import ru.raccoon.netologydiploma.repository.FileRepository;
 import ru.raccoon.netologydiploma.repository.IFileJpaRepository;
 import ru.raccoon.netologydiploma.responseentities.Error;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,8 +29,6 @@ public class FSService {
 
     private final IFileJpaRepository fileJpaRepository;
     private final FileRepository fileRepository;
-
-    private final String UPLOADED_FOLDER = "files\\";
 
     public FSService(IFileJpaRepository fileJpaRepository, FileRepository fileRepository) {
         this.fileJpaRepository = fileJpaRepository;
