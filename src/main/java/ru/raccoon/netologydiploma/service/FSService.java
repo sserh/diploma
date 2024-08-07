@@ -1,11 +1,14 @@
 package ru.raccoon.netologydiploma.service;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Limit;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,12 +66,9 @@ public class FSService {
      */
     public boolean uploadFile(@RequestPart("file") MultipartFile file) {
         try {
-            //"копируем" файл в место хранения файла
-            byte[] bytes = file.getBytes();
-            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-            Files.write(path, bytes);
             //добавляем запись о файле в БД
-            fileRepository.insertWithEntityManager(new FileInfo(file.getOriginalFilename(), (int) file.getSize()));
+            byte[] bytes = file.getBytes();
+            fileRepository.insertWithEntityManager(new FileInfo(file.getOriginalFilename(), (int) file.getSize(), bytes, SecurityContextHolder.getContext().getAuthentication().getName()));
             //отправляем ответ, что загрузка завершена успешно
             return true;
         } catch (IOException e) {
@@ -75,7 +76,7 @@ public class FSService {
             throw new BadRequestException(new Error(e.getMessage(), 1008));
         } catch (RuntimeException e) {
             //если проблема не в присланном файле, а в чём-то другом, то сообщаем о некоей внутренней ошибке
-            throw new ISEException(new Error("Ошибка удаления файла. Внутренняя ошибка сервера", 10018));
+            throw new ISEException(new Error("Ошибка загрузки файла. Внутренняя ошибка сервера", 10018));
         }
     }
 
@@ -84,19 +85,12 @@ public class FSService {
      * @return Возвращает результат удаления файла
      */
     public boolean deleteFile(@RequestParam String filename) {
-        File file = new File(UPLOADED_FOLDER + filename);
-        if (!file.exists()) {
-            //если файл, указанный для удаления, не найден, то отправляем ответ, что параметры запросы неудачные
-            throw new BadRequestException(new Error("Запрошенный для удаления файл не найден", 10020));
-        }
-        if (file.delete()) {
-            //если файл успешно удалён с диска, то удаляем информацию о нём в БД
+        try {
             fileRepository.deleteWithEntityManager(getFileInfoByFileName(filename));
-            return true;
-        } else {
-            //если с удалением какие-то проблемы, то сообщаем об этом
+        } catch (Exception e) {
             throw new ISEException(new Error("Ошибка удаления файла. Внутренняя ошибка сервера", 10010));
         }
+        return true;
     }
 
     /** Метод обрабатывает запрос на скачивание файла с файлового сервиса
@@ -105,15 +99,12 @@ public class FSService {
      */
     public ResponseEntity<Resource> downloadFile(String filename) {
         try {
-            Path path = Paths.get(UPLOADED_FOLDER + filename);
-            if (!path.toFile().exists()) {
-                //если файл, указанный для скачивания, не найден, то отправляем ответ, что параметры запросы неудачные
-                throw new BadRequestException(new Error("Запрошенный для скачивания файл не найден", 10021));
-            }
             //передадим файл клиенту
-            Resource fileResource = new FileSystemResource(path);
+            byte[] file = getFileInfoByFileName(filename).getFile();
+            Resource fileResource = new ByteArrayResource(file);
+
             return ResponseEntity.ok()
-                    .contentLength(path.toFile().length())
+                    .contentLength(fileResource.contentLength())
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(fileResource);
         } catch (Exception e) {
@@ -128,19 +119,12 @@ public class FSService {
      * @return Возвращает результат переименования файла
      */
     public boolean renameFile(String filename, String newFilename) {
-        File file = new File(UPLOADED_FOLDER + filename);
-        if (!file.exists()) {
-            //если файл, указанный для переименования, не найден, то отправляем ответ, что параметры запросы неудачные
-            throw new BadRequestException(new Error("Запрошенный для переименования файл не найден", 10022));
-        }
-        if (file.renameTo(new File(UPLOADED_FOLDER + newFilename))) {
-            //если файл на диске успешно переименован, то обновляем информацию о файле в БД
-            fileRepository.deleteWithEntityManager(getFileInfoByFileName(filename));
-            fileRepository.insertWithEntityManager(new FileInfo(newFilename, (int) file.length()));
-            return true;
-        } else {
-            //если при работе с файлом что-то пошло не так, то сообщаем об этом
+        try {
+            fileRepository.renameWithEntityManager(getFileInfoByFileName(filename), newFilename);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
             throw new ISEException(new Error("Ошибка переименования файла. Внутренняя ошибка сервера", 10012));
         }
+        return true;
     }
 }

@@ -30,8 +30,18 @@ public class FileRepository {
      */
     @Transactional
     public void deleteWithEntityManager(FileInfo fileInfo) {
-        FileInfo fileInfo1 = entityManager.find(FileInfo.class, fileInfo.getFilename());
-        entityManager.remove(fileInfo1);
+        entityManager.remove(fileInfo);
+        flushAndClearEntity();
+    }
+
+    /** Метод для переименования файла в БД
+     * @param fileInfo Информация о файле, который требуется переименовать
+     * @param newFileName Новое имя файла
+     */
+    @Transactional
+    public void renameWithEntityManager(FileInfo fileInfo, String newFileName) {
+        entityManager.merge(fileInfo);
+        fileInfo.setFilename(newFileName);
         flushAndClearEntity();
     }
 
