@@ -60,7 +60,7 @@ public class FSService {
      * @param file Файл для загрузки
      * @return Возвращает результат загрузки файла
      */
-    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
+    public boolean uploadFile(@RequestPart("file") MultipartFile file) {
         try {
             //"копируем" файл в место хранения файла
             byte[] bytes = file.getBytes();
@@ -69,7 +69,7 @@ public class FSService {
             //добавляем запись о файле в БД
             fileRepository.insertWithEntityManager(new FileInfo(file.getOriginalFilename(), (int) file.getSize()));
             //отправляем ответ, что загрузка завершена успешно
-            return ResponseEntity.ok("Upload:ok");
+            return true;
         } catch (IOException e) {
             //если с файлом проблема, то отправляем ответ, что параметры запросы неудачные
             throw new BadRequestException(new Error(e.getMessage(), 1008));
@@ -83,7 +83,7 @@ public class FSService {
      * @param filename Имя файла для удаления
      * @return Возвращает результат удаления файла
      */
-    public ResponseEntity<String> deleteFile(@RequestParam String filename) {
+    public boolean deleteFile(@RequestParam String filename) {
         File file = new File(UPLOADED_FOLDER + filename);
         if (!file.exists()) {
             //если файл, указанный для удаления, не найден, то отправляем ответ, что параметры запросы неудачные
@@ -92,7 +92,7 @@ public class FSService {
         if (file.delete()) {
             //если файл успешно удалён с диска, то удаляем информацию о нём в БД
             fileRepository.deleteWithEntityManager(getFileInfoByFileName(filename));
-            return ResponseEntity.ok("Delete:ok");
+            return true;
         } else {
             //если с удалением какие-то проблемы, то сообщаем об этом
             throw new ISEException(new Error("Ошибка удаления файла. Внутренняя ошибка сервера", 10010));
@@ -127,7 +127,7 @@ public class FSService {
      * @param newFilename Новое имя файла
      * @return Возвращает результат переименования файла
      */
-    public ResponseEntity<String> renameFile(String filename, String newFilename) {
+    public boolean renameFile(String filename, String newFilename) {
         File file = new File(UPLOADED_FOLDER + filename);
         if (!file.exists()) {
             //если файл, указанный для переименования, не найден, то отправляем ответ, что параметры запросы неудачные
@@ -137,7 +137,7 @@ public class FSService {
             //если файл на диске успешно переименован, то обновляем информацию о файле в БД
             fileRepository.deleteWithEntityManager(getFileInfoByFileName(filename));
             fileRepository.insertWithEntityManager(new FileInfo(newFilename, (int) file.length()));
-            return ResponseEntity.ok("Rename:ok");
+            return true;
         } else {
             //если при работе с файлом что-то пошло не так, то сообщаем об этом
             throw new ISEException(new Error("Ошибка переименования файла. Внутренняя ошибка сервера", 10012));

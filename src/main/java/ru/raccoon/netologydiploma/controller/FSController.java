@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping("/cloud/")
 public class FSController {
 
-
     private final FSService fsService;
 
     public FSController(FSService fsService) {
@@ -43,8 +42,8 @@ public class FSController {
      * @return Возвращает от сервиса результат загрузки файла
      */
     @PostMapping("file")
-    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
-        return fsService.uploadFile(file);
+    public ResponseEntity<Void> uploadFile(@RequestPart("file") MultipartFile file) {
+        return fsService.uploadFile(file) ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
     /** Метод, принимающий и перенаправляющий в нужный сервис запрос на удаление файла с файлового сервиса
@@ -52,8 +51,8 @@ public class FSController {
      * @return Возвращает от сервиса результат удаления файла
      */
     @DeleteMapping("file")
-    public ResponseEntity<String> deleteFile(@RequestParam String filename) {
-        return fsService.deleteFile(filename);
+    public ResponseEntity<Void> deleteFile(@RequestParam String filename) {
+        return fsService.deleteFile(filename) ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
     /** Метод, принимающий и перенаправляющий в нужный сервис запрос на скачивание файла с файлового сервиса
@@ -72,6 +71,6 @@ public class FSController {
      */
     @PutMapping("file")
     public ResponseEntity<String> renameFile(@RequestParam String filename, @RequestBody FileNameEntity fileNameEntity) {
-        return fsService.renameFile(filename, fileNameEntity.getFilename());
+        return fsService.renameFile(filename, fileNameEntity.getFilename()) ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 }
